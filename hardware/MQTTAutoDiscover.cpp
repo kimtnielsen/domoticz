@@ -2341,6 +2341,26 @@ MQTTAutoDiscover::_tMQTTASensor* MQTTAutoDiscover::get_auto_discovery_sensor_uni
 				if (pSensor->unique_id == pTmpDeviceSensor->unique_id)
 					return pTmpDeviceSensor;
 
+				// ...ktnielsen addition...
+				// In case of multiple subdevices with the same unit, we try to match device-id and index (if possible)
+				std::vector<std::string> sensorParts;
+				std::vector<std::string> tmpParts;
+				StringSplit(pSensor->unique_id, "_", sensorParts);
+				StringSplit(pTmpDeviceSensor->unique_id, "_", tmpParts);
+
+				if (sensorParts.size() >= 3 && tmpParts.size() >= 3) 
+				{
+					// Compare device-id and index
+					bool deviceMatch = (sensorParts[0] == tmpParts[0]);
+					bool indexMatch = (sensorParts[2] == tmpParts[2]);
+
+					if (deviceMatch && indexMatch) 
+					{
+						return pTmpDeviceSensor;
+					}
+				}
+				// ...ktnielsen end...
+
 				// Check the "match length" of the UID of the DEVICE with the UID of the SENSOR to get the correct subdevice in case the are multiple
 				auto ittUnID1 = pSensor->unique_id.begin();
 				auto ittUnID2 = pTmpDeviceSensor->unique_id.begin();
